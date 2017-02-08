@@ -7,7 +7,7 @@ import (
 	"sync"
 )
 
-// Mutex is used to unlock the lock
+// Mutex is a mutual exclusion lock that can be used across different processes
 type Mutex struct {
 	addr string
 

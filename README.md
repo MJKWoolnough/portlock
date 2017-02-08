@@ -16,19 +16,31 @@ type Mutex struct {
 
 Mutex is used to unlock the lock
 
-#### func  Lock
+#### func  New
 
 ```go
-func Lock(addr string) (*Mutex, error)
+func New(addr string) *Mutex
 ```
-Lock currently uses a tcp connection to determine the lock status, and as such
-requires a tcp address to listen on.
+New creates a new Mutex which currently uses a tcp connection to determine the
+lock status, and as such requires a tcp address to listen on.
 
 This may change and is not stable.
+
+#### func (*Mutex) Lock
+
+```go
+func (m *Mutex) Lock()
+```
+Lock locks the mutex. If it is already locked, by this or another process, then
+the call blocks until it is unlocked.
 
 #### func (*Mutex) Unlock
 
 ```go
-func (m *Mutex) Unlock() error
+func (m *Mutex) Unlock()
 ```
-Unlock removes the lock
+Unlock removes the lock. Due to the current implementation, exiting the program
+will also unlock the mutex.
+
+It is the intention that this will always be true, but Unlock should be called
+before program exit regardless.

@@ -4,36 +4,56 @@ package portlock
 import (
 	"io"
 	"net"
+	"sync"
 )
 
 // Mutex is used to unlock the lock
 type Mutex struct {
-	l io.Closer
+	addr string
+
+	mu sync.Mutex
+	l  io.Closer
 }
 
 var readBuf [1]byte
 
-// Lock currently uses a tcp connection to determine the lock status, and as
-// such requires a tcp address to listen on.
+// New creates a new Mutex which currently uses a tcp connection to determine
+// the lock status, and as such requires a tcp address to listen on.
 //
 // This may change and is not stable.
-func Lock(addr string) (*Mutex, error) {
+func New(addr string) *Mutex {
+	return &Mutex{addr: addr}
+}
+
+// Lock locks the mutex. If it is already locked, by this or another process,
+// then the call blocks until it is unlocked.
+func (m *Mutex) Lock() {
 	for {
-		l, err := net.Listen("tcp", addr)
+		l, err := net.Listen("tcp", m.addr)
 		if err == nil {
-			return &Mutex{l}, nil
+			m.mu.Lock()
+			m.l = l
+			m.mu.Unlock()
+			return
 		} else if oe, ok := err.(*net.OpError); ok && isOpen(oe.Err) {
-			c, err := net.Dial("tcp", addr)
+			c, err := net.Dial("tcp", m.addr)
 			if err == nil {
 				c.Read(readBuf[:])
 			}
 		} else {
-			return nil, err
+			panic(err)
 		}
 	}
 }
 
-// Unlock removes the lock
-func (m *Mutex) Unlock() error {
-	return m.l.Close()
+// Unlock removes the lock. Due to the current implementation, exiting the
+// program will also unlock the mutex.
+//
+// It is the intention that this will always be true, but Unlock should be
+// called before program exit regardless.
+func (m *Mutex) Unlock() {
+	m.mu.Lock()
+	m.l.Close()
+	m.l = nil
+	m.mu.Unlock()
 }

@@ -1,4 +1,4 @@
-package portblock
+package portlock
 
 import (
 	"os"

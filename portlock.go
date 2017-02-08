@@ -1,3 +1,4 @@
+// Package portlock is a simple mutex for use between processes to protect a shared resource
 package portlock
 
 import (
@@ -5,12 +6,17 @@ import (
 	"net"
 )
 
+// Mutex is used to unlock the lock
 type Mutex struct {
 	l io.Closer
 }
 
 var readBuf [1]byte
 
+// Lock currently uses a tcp connection to determine the lock status, and as
+// such requires a tcp address to listen on.
+//
+// This may change and is not stable.
 func Lock(addr string) (*Mutex, error) {
 	for {
 		l, err := net.Listen("tcp", addr)
@@ -27,6 +33,7 @@ func Lock(addr string) (*Mutex, error) {
 	}
 }
 
+// Unlock removes the lock
 func (m *Mutex) Unlock() error {
 	return m.l.Close()
 }

@@ -8,7 +8,7 @@ import (
 )
 
 // Mutex is a mutual exclusion lock that can be used across different processes
-type Mutex struct {
+type mutex struct {
 	addr string
 
 	mu sync.Mutex
@@ -21,13 +21,13 @@ var readBuf [1]byte
 // the lock status, and as such requires a tcp address to listen on.
 //
 // This may change and is not stable.
-func New(addr string) *Mutex {
+func New(addr string) sync.Locker {
 	return &Mutex{addr: addr}
 }
 
 // Lock locks the mutex. If it is already locked, by this or another process,
 // then the call blocks until it is unlocked.
-func (m *Mutex) Lock() {
+func (m *mutex) Lock() {
 	for {
 		l, err := net.Listen("tcp", m.addr)
 		if err == nil {
@@ -51,7 +51,7 @@ func (m *Mutex) Lock() {
 //
 // It is the intention that this will always be true, but Unlock should be
 // called before program exit regardless.
-func (m *Mutex) Unlock() {
+func (m *mutex) Unlock() {
 	m.mu.Lock()
 	m.l.Close()
 	m.l = nil

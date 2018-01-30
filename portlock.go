@@ -22,7 +22,7 @@ var readBuf [1]byte
 //
 // This may change and is not stable.
 func New(addr string) sync.Locker {
-	return &Mutex{addr: addr}
+	return &mutex{addr: addr}
 }
 
 // Lock locks the mutex. If it is already locked, by this or another process,

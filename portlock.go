@@ -1,5 +1,5 @@
 // Package portlock is a simple mutex for use between processes to protect a shared resource
-package portlock
+package portlock // import "vimagination.zapto.org/portlock"
 
 import (
 	"io"

@@ -17,6 +17,7 @@ type mutex struct {
 
 var readBuf [1]byte
 
+// Type Locker combines the sync.Locker interface with the TryLock method
 type Locker interface {
 	sync.Locker
 	TryLock() bool
@@ -41,6 +42,7 @@ func (m *mutex) Lock() {
 	}
 }
 
+// TryLock attempts to lock the Mutex, returning true on a success.
 func (m *mutex) TryLock() bool {
 	l, err := net.Listen("tcp", m.addr)
 	if err == nil {

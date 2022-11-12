@@ -17,32 +17,41 @@ type mutex struct {
 
 var readBuf [1]byte
 
+type Locker interface {
+	sync.Locker
+	TryLock() bool
+}
+
 // New creates a new Mutex which currently uses a tcp connection to determine
 // the lock status, and as such requires a tcp address to listen on.
 //
 // This may change and is not stable.
-func New(addr string) sync.Locker {
+func New(addr string) Locker {
 	return &mutex{addr: addr}
 }
 
 // Lock locks the mutex. If it is already locked, by this or another process,
 // then the call blocks until it is unlocked.
 func (m *mutex) Lock() {
-	for {
-		l, err := net.Listen("tcp", m.addr)
+	for !m.TryLock() {
+		c, err := net.Dial("tcp", m.addr)
 		if err == nil {
-			m.mu.Lock()
-			m.l = l
-			m.mu.Unlock()
-			return
-		} else if oe, ok := err.(*net.OpError); ok && isOpen(oe.Err) {
-			c, err := net.Dial("tcp", m.addr)
-			if err == nil {
-				c.Read(readBuf[:])
-			}
-		} else {
-			panic(err)
+			c.Read(readBuf[:])
 		}
+	}
+}
+
+func (m *mutex) TryLock() bool {
+	l, err := net.Listen("tcp", m.addr)
+	if err == nil {
+		m.mu.Lock()
+		m.l = l
+		m.mu.Unlock()
+		return true
+	} else if oe, ok := err.(*net.OpError); ok && isOpen(oe.Err) {
+		return false
+	} else {
+		panic(err)
 	}
 }
 

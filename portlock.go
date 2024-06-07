@@ -1,4 +1,4 @@
-// Package portlock is a simple mutex for use between processes to protect a shared resource
+// Package portlock is a simple mutex for use between processes to protect a shared resource.
 package portlock // import "vimagination.zapto.org/portlock"
 
 import (
@@ -7,7 +7,7 @@ import (
 	"sync"
 )
 
-// Mutex is a mutual exclusion lock that can be used across different processes
+// Mutex is a mutual exclusion lock that can be used across different processes.
 type mutex struct {
 	addr string
 
@@ -17,7 +17,7 @@ type mutex struct {
 
 var readBuf [1]byte
 
-// Type Locker combines the sync.Locker interface with the TryLock method
+// Type Locker combines the sync.Locker interface with the TryLock method.
 type Locker interface {
 	sync.Locker
 	TryLock() bool
@@ -35,8 +35,8 @@ func New(addr string) Locker {
 // then the call blocks until it is unlocked.
 func (m *mutex) Lock() {
 	for !m.TryLock() {
-		c, err := net.Dial("tcp", m.addr)
-		if err == nil {
+		if c, err := net.Dial("tcp", m.addr); err == nil {
+			// c.SetDeadline(time.Now().Add(time.Second >> 1))
 			c.Read(readBuf[:])
 		}
 	}
@@ -44,11 +44,11 @@ func (m *mutex) Lock() {
 
 // TryLock attempts to lock the Mutex, returning true on a success.
 func (m *mutex) TryLock() bool {
-	l, err := net.Listen("tcp", m.addr)
-	if err == nil {
+	if l, err := net.Listen("tcp", m.addr); err == nil {
 		m.mu.Lock()
 		m.l = l
 		m.mu.Unlock()
+
 		return true
 	} else if oe, ok := err.(*net.OpError); ok && isOpen(oe.Err) {
 		return false

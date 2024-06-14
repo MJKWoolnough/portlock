@@ -2,6 +2,7 @@
 package portlock // import "vimagination.zapto.org/portlock"
 
 import (
+	"errors"
 	"io"
 	"net"
 	"sync"
@@ -44,13 +45,15 @@ func (m *mutex) Lock() {
 
 // TryLock attempts to lock the Mutex, returning true on a success.
 func (m *mutex) TryLock() bool {
+	var oe *net.OpError
+
 	if l, err := net.Listen("tcp", m.addr); err == nil {
 		m.mu.Lock()
 		m.l = l
 		m.mu.Unlock()
 
 		return true
-	} else if oe, ok := err.(*net.OpError); ok && isOpen(oe.Err) {
+	} else if errors.As(err, &oe) && isOpen(oe.Err) {
 		return false
 	} else {
 		panic(err)

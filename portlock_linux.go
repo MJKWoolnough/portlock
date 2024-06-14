@@ -1,14 +1,13 @@
 package portlock
 
 import (
+	"errors"
 	"os"
 	"syscall"
 )
 
 func isOpen(err error) bool {
-	if se, ok := err.(*os.SyscallError); ok {
-		return se.Err == syscall.EADDRINUSE
-	}
+	var se *os.SyscallError
 
-	return false
+	return errors.As(err, &se) && errors.Is(se.Err, syscall.EADDRINUSE)
 }

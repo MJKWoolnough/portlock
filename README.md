@@ -3,7 +3,7 @@
     import "vimagination.zapto.org/portlock"
 
 Package portlock is a simple mutex for use between processes to protect a shared
-### resource
+resource.
 
 ## Usage
 
@@ -16,7 +16,7 @@ type Locker interface {
 }
 ```
 
-Type Locker combines the sync.Locker interface with the TryLock method
+Type Locker combines the sync.Locker interface with the TryLock method.
 
 #### func  New
 

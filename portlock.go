@@ -49,8 +49,9 @@ func (m *mutex) TryLock() bool {
 
 	if l, err := net.Listen("tcp", m.addr); err == nil {
 		m.mu.Lock()
+		defer m.mu.Unlock()
+
 		m.l = l
-		m.mu.Unlock()
 
 		return true
 	} else if errors.As(err, &oe) && isOpen(oe.Err) {
@@ -67,7 +68,8 @@ func (m *mutex) TryLock() bool {
 // called before program exit regardless.
 func (m *mutex) Unlock() {
 	m.mu.Lock()
+	defer m.mu.Unlock()
+
 	m.l.Close()
 	m.l = nil
-	m.mu.Unlock()
 }

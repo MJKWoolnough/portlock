@@ -71,5 +71,6 @@ func (m *mutex) Unlock() {
 	defer m.mu.Unlock()
 
 	m.l.Close()
+
 	m.l = nil
 }

@@ -32,7 +32,7 @@ func TestMutex(t *testing.T) {
 
 	defer runtime.SetMutexProfileFraction(0)
 
-	m := New(":9999")
+	m := New("127.0.0.1:9999")
 
 	m.Lock()
 

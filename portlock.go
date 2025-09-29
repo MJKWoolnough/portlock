@@ -24,8 +24,8 @@ type Locker interface {
 	TryLock() bool
 }
 
-// New creates a new Mutex which currently uses a tcp connection to determine
-// the lock status, and as such requires a tcp address to listen on.
+// New creates a new Mutex which currently uses a TCP connection to determine
+// the lock status, and as such requires a TCP address to listen on.
 //
 // This may change and is not stable.
 func New(addr string) Locker {

@@ -2,7 +2,6 @@
 
 [![CI](https://github.com/MJKWoolnough/portlock/actions/workflows/go-checks.yml/badge.svg)](https://github.com/MJKWoolnough/portlock/actions)
 [![Go Reference](https://pkg.go.dev/badge/vimagination.zapto.org/portlock.svg)](https://pkg.go.dev/vimagination.zapto.org/portlock)
-[![Go Report Card](https://goreportcard.com/badge/vimagination.zapto.org/portlock)](https://goreportcard.com/report/vimagination.zapto.org/portlock)
 
 --
     import "vimagination.zapto.org/portlock"
